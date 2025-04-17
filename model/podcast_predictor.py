@@ -8,11 +8,18 @@ from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.ensemble import RandomForestRegressor
 import joblib
+import os
 
 class PodcastPredictor:  #TODO: Input Model
     def __init__(self):
         self.model = None
         self.preprocessor = None
+        self.preprocessing_params = None
+        
+        # Load preprocessing parameters if they exist
+        params_path = 'model/preprocessing_params.joblib'
+        if os.path.exists(params_path):
+            self.preprocessing_params = joblib.load(params_path)
         
     def preprocess_features(self, X):
         """
@@ -106,6 +113,56 @@ class PodcastPredictor:  #TODO: Input Model
         df_cleaned[bool_cols] = df_cleaned[bool_cols].astype(int)
         
         return df_cleaned
+    
+    def preprocess_user_input(self, features):
+        """
+        Preprocess user input for prediction
+        
+        Args:
+            features (dict): User input features
+            
+        Returns:
+            DataFrame: Preprocessed features
+        """
+        # Create a DataFrame with the user input
+        input_df = pd.DataFrame([features])
+        
+        # Convert time_length to minutes
+        time_parts = features['time_length'].split(':')
+        if len(time_parts) == 2:
+            minutes = int(time_parts[0]) * 60 + int(time_parts[1])
+        else:
+            minutes = int(time_parts[0]) * 3600 + int(time_parts[1]) * 60 + int(time_parts[2])
+        
+        # Create a more complete input DataFrame with default values
+        # This is necessary because the model was trained with more features
+        input_data = {
+            'Episode_Length_minutes': minutes,
+            'Host_Popularity_percentage': 50,  # Default value
+            'Guest_Popularity_percentage': 50,  # Default value
+            'Number_of_Ads': 1,  # Default value
+            'Episode_Title_Numeric': 1,  # Default value
+            'Episode_Sentiment': 1,  # Default value (Neutral)
+        }
+        
+        # Add genre one-hot encoding
+        for genre in ['Comedy', 'News', 'Education', 'Business', 'Technology', 
+                     'Health', 'Arts', 'Sports', 'Music', 'Society']:
+            input_data[f'Genre_{genre}'] = 1 if features['genre'] == genre else 0
+        
+        # Add publication day one-hot encoding
+        for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 
+                   'Friday', 'Saturday', 'Sunday']:
+            input_data[f'Publication_Day_{day}'] = 1 if features['publication_day'] == day else 0
+        
+        # Add publication time one-hot encoding (default to morning)
+        for time in ['Morning', 'Afternoon', 'Evening', 'Night']:
+            input_data[f'Publication_Time_{time}'] = 1 if time == 'Morning' else 0
+        
+        # Create DataFrame
+        input_df = pd.DataFrame([input_data])
+        
+        return input_df
 
     def train_model(self, train_data):
         """
@@ -147,8 +204,8 @@ class PodcastPredictor:  #TODO: Input Model
         Returns:
             float: Predicted average listening time in minutes
         """
-        # Convert input features to DataFrame
-        input_df = pd.DataFrame([features])
+        # Preprocess user input
+        input_df = self.preprocess_user_input(features)
         
         # Make prediction
         prediction = self.model.predict(input_df)[0]
