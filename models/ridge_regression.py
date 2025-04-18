@@ -1,5 +1,5 @@
 import numpy as np
-from linear_regression_model import LinearRegression
+from models.linear_regression_model import LinearRegression
 
 class RidgeRegression(LinearRegression):
     def __init__(self, learning_rate, num_iterations, l2_penalty):
