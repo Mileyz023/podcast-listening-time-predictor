@@ -5,10 +5,10 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import joblib
 import os
-# from utils import preprocess_dataset, load_data, train_model
-# from models.linear_regression_model import LinearRegression
-# from models.ridge_regression import RidgeRegression
-# from models.polynomial_regression import PolynomialRegression
+from utils import preprocess_dataset, load_data, train_model
+from models.linear_regression_model import LinearRegression
+from models.ridge_regression import RidgeRegression
+from models.polynomial_regression import PolynomialRegression
 
 st.set_page_config(page_title="Podcast Listening Time Predictor", layout="wide")
 st.markdown("# Predict your podcast average streaming time")

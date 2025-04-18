@@ -1,5 +1,6 @@
 import numpy as np
 import itertools
+from models.linear_regression_model import LinearRegression
 
 class PolynomialRegression(LinearRegression):
     def __init__(self, degree, learning_rate, num_iterations):
