@@ -10,6 +10,49 @@ from models.linear_regression_model import LinearRegression
 from models.ridge_regression import RidgeRegression
 from models.polynomial_regression import PolynomialRegression
 
+def preprocess_user_input(features_dict):
+    # 1. Parse time length MM:SS → float
+    try:
+        time_parts = features_dict['time_length'].strip().split(":")
+        if len(time_parts) != 2 or not all(tp.isdigit() for tp in time_parts):
+            raise ValueError("Invalid time format")
+        minutes = int(time_parts[0])
+        seconds = int(time_parts[1])
+        episode_length = minutes * 60 + seconds
+    except Exception:
+        raise ValueError("Time Length must be in MM:SS format (e.g., 02:30)")
+
+    # 2. Encode sentiment
+    sentiment_map = {'Negative': 0, 'Neutral': 1, 'Positive': 2}
+    sentiment = sentiment_map.get(features_dict['episode_sentiment'], 1)
+
+    # 3. Manually build the feature vector
+    base_dict = {
+        'Episode_Length_minutes': episode_length,
+        'Host_Popularity_percentage': 50.0,
+        'Guest_Popularity_percentage': 50.0,
+        'Number_of_Ads': 1,
+        'Episode_Sentiment': sentiment
+    }
+
+    # 4. One-hot encode categorical features
+    genres = ["Comedy", "News", "Education", "Business", "Technology", "Health", "Arts", "Sports", "Music", "Society"]
+    days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    times = ["Morning", "Afternoon", "Evening", "Night"]
+
+    for g in genres[1:]:  # drop_first=True
+        base_dict[f'Genre_{g}'] = 1 if features_dict['genre'] == g else 0
+
+    for d in days[1:]:
+        base_dict[f'Publication_Day_{d}'] = 1 if features_dict['publication_day'] == d else 0
+
+    for t in times[1:]:
+        base_dict[f'Publication_Time_{t}'] = 1 if features_dict['publication_time'] == t else 0
+
+    # 5. Convert to array and return
+    return np.array([list(base_dict.values())])
+
+
 st.set_page_config(page_title="Podcast Listening Time Predictor", layout="wide")
 st.markdown("# Predict your podcast average streaming time")
 
@@ -50,6 +93,9 @@ if submitted:
             train_df, test_df = load_data()
             X_train, y_train, X_eval, y_eval = preprocess_dataset(train_df)
             model = train_model(X_train, y_train, X_eval, y_eval, selected_model)
+
+            #Ensure directory exists
+            os.makedirs('pretrained_models', exist_ok=True)
             
             # Export trained model
             joblib.dump(model, model_path)
@@ -60,11 +106,17 @@ if submitted:
     
     # Make prediction
     try:
-        prediction = model.predict(pd.DataFrame([features]))
+        #prediction = model.predict(pd.DataFrame([features]))
+        input_array = preprocess_user_input(features)
+        prediction = model.predict(input_array)
+
+        predicted_minutes = float(prediction[0])  # extract scalar
         
         # Display results
         st.markdown("## 📊 Result")
-        st.markdown(f"Based on your podcast information, the average streaming time will be: **{prediction[0]:.2f}** minutes")
+        #st.markdown(f"Based on your podcast information, the average streaming time will be: **{prediction[0]:.2f}** minutes")
+        st.markdown(f"Based on your podcast information, the average streaming time will be: **{predicted_minutes:.2f}** minutes")
+
         
         # Visualize the prediction
         st.markdown("### 📈 Visualization")
@@ -76,7 +128,8 @@ if submitted:
         # Create data for visualization
         data = {
             'Metric': ['Episode Length', 'Predicted Listening Time'],
-            'Minutes': [episode_minutes, prediction[0]]
+            #'Minutes': [episode_minutes, prediction[0]]
+            'Minutes': [episode_minutes, predicted_minutes]
         }
         df_viz = pd.DataFrame(data)
         
@@ -88,7 +141,8 @@ if submitted:
         st.pyplot(fig)
         
         # Calculate completion rate
-        completion_rate = (prediction[0] / episode_minutes) * 100
+        #completion_rate = (prediction[0] / episode_minutes) * 100
+        completion_rate = (predicted_minutes / episode_minutes) * 100
         st.markdown(f"**Completion Rate:** {completion_rate:.1f}%")
         
         # Display suggestions
