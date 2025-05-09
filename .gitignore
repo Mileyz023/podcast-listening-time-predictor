@@ -2,3 +2,100 @@
 .vscode
 .env*
 node_modules
+__pycache__/utils.cpython-39.pyc
+models/__pycache__/linear_regression_model.cpython-39.pyc
+models/__pycache__/polynomial_regression.cpython-39.pyc
+models/__pycache__/ridge_regression.cpython-39.pyc
+pretrained_models/linear_regression.joblib
+pretrained_models/polynomial_regression.joblib
+pretrained_models/ridge_regression.joblib
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Virtual environments
+venv/
+env/
+.venv/
+.env/
+ENV/
+env.bak/
+venv.bak/
+
+# VSCode settings
+.vscode/
+
+# PyCharm settings
+.idea/
+
+# Distribution / packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# pylint
+pylint-report.txt
+pylint-global.txt
+
+# pyre
+.pyre/
+
+# pytype
+.pytype/
+
+# cProfile
+.prof
+
+# Logs and debug
+*.log
+
+# joblib and other serialized data
+*.joblib
+*.pkl
+*.h5
+*.model
+
+# Jupyter runtime
+*.local/share/jupyter/runtime/
+
+# Docker
+*.pid
+*.seed
+*.tar
+
+# System files
+.DS_Store
+Thumbs.db
