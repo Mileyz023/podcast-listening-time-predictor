@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 import joblib
+import os
 from utils import preprocess_dataset, load_data
 
 st.set_page_config(page_title="Model Evaluation", layout="wide")
@@ -33,22 +34,36 @@ def load_evaluation_data():
     X_train, y_train, X_eval, y_eval = preprocess_dataset(train_df, test_df)
     return X_train, y_train, X_eval, y_eval
 
-# Load models
+# Load available models
 @st.cache_resource
-def load_models():
-    models = {
-        "Linear Regression": joblib.load('pretrained_models/linear_regression.joblib'),
-        "Ridge Regression": joblib.load('pretrained_models/ridge_regression.joblib'),
-        "Polynomial Regression": joblib.load('pretrained_models/polynomial_regression.joblib')
+def load_available_models():
+    model_files = {
+        "Linear Regression": 'pretrained_models/linear_regression.joblib',
+        "Ridge Regression": 'pretrained_models/ridge_regression.joblib',
+        "Polynomial Regression": 'pretrained_models/polynomial_regression.joblib'
     }
-    return models
+    
+    available_models = {}
+    for model_name, model_path in model_files.items():
+        if os.path.exists(model_path):
+            try:
+                available_models[model_name] = joblib.load(model_path)
+            except Exception as e:
+                st.warning(f"Could not load {model_name}: {str(e)}")
+    
+    return available_models
 
 try:
     # Load data
     X_train, y_train, X_eval, y_eval = load_evaluation_data()
     
-    # Load models
-    models = load_models()
+    # Load available models
+    models = load_available_models()
+    
+    if not models:
+        st.error("No trained models found. Please train at least one model first.")
+        st.info("You can train models on the 'Model Training and Inference' page.")
+        st.stop()
     
     # Model selection
     selected_model = st.selectbox(
@@ -72,11 +87,11 @@ try:
     fig, axs = plt.subplots(1, 2, figsize=(14, 6))
     
     # Scatter: Actual vs Predicted
-    axs[0].scatter(y_eval, y_eval_pred, alpha=0.3)
+    axs[0].scatter(y_eval_pred, y_eval, alpha=0.3)
     axs[0].plot([y_eval.min(), y_eval.max()], [y_eval.min(), y_eval.max()], 'r--', lw=2)
     axs[0].set_title('Actual vs Predicted (Test Set)')
-    axs[0].set_xlabel('Actual')
-    axs[0].set_ylabel('Predicted')
+    axs[0].set_xlabel('Predicted')
+    axs[0].set_ylabel('Actual')
     axs[0].grid(True)
     
     # Histogram: Residuals
@@ -148,4 +163,4 @@ try:
 
 except Exception as e:
     st.error(f"An error occurred: {str(e)}")
-    st.info("Make sure you have trained models available in the 'pretrained_models' directory.")
+    st.info("Make sure you have trained at least one model on the 'Model Training and Inference' page.")
