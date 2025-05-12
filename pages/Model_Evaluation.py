@@ -35,7 +35,7 @@ def load_evaluation_data():
     return X_train, y_train, X_eval, y_eval
 
 # Load available models
-@st.cache_resource
+@st.cache_resource(show_spinner=False)
 def load_available_models():
     model_files = {
         "Linear Regression": 'pretrained_models/linear_regression.joblib',
@@ -57,8 +57,16 @@ try:
     # Load data
     X_train, y_train, X_eval, y_eval = load_evaluation_data()
     
+    # Add a refresh button to force reload models
+    if st.button("Refresh Available Models"):
+        st.cache_resource.clear()
+        st.rerun()
+    
     # Load available models
     models = load_available_models()
+    
+    # Display model count for debugging
+    st.write(f"Found {len(models)} trained models")
     
     if not models:
         st.error("No trained models found. Please train at least one model first.")
