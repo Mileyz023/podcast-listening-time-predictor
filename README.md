@@ -29,7 +29,7 @@ The application employs three different regression models:
    ```
 3. Run the application:
    ```
-   streamlit run Model_Inference.py
+   streamlit run Podcast_Listening_Time_Predictor.py
    ```
 4. Enter your podcast details in the form:
    - Episode name and length
