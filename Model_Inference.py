@@ -11,7 +11,7 @@ from models.ridge_regression import RidgeRegression
 from models.polynomial_regression import PolynomialRegression
 
 def preprocess_user_input(features_dict):
-    # 1. Parse time length MM:SS → float
+    # parse time length MM:SS → float
     try:
         time_parts = features_dict['time_length'].strip().split(":")
         if len(time_parts) != 2 or not all(tp.isdigit() for tp in time_parts):
@@ -22,11 +22,11 @@ def preprocess_user_input(features_dict):
     except Exception:
         raise ValueError("Time Length must be in MM:SS format (e.g., 02:30)")
 
-    # 2. Encode sentiment
+    # Encode sentiment
     sentiment_map = {'Negative': 0, 'Neutral': 1, 'Positive': 2}
     sentiment = sentiment_map.get(features_dict['episode_sentiment'], 1)
 
-    # 3. Manually build the feature vector
+    # Manually build the feature vector
     base_dict = {
         'Episode_Length_minutes': episode_length,
         'Host_Popularity_percentage': 50.0,
@@ -35,7 +35,7 @@ def preprocess_user_input(features_dict):
         'Episode_Sentiment': sentiment
     }
 
-    # 4. One-hot encode categorical features
+    # One-hot encode categorical features
     genres = ["Comedy", "News", "Education", "Business", "Technology", "Health", "Arts", "Sports", "Music", "Society"]
     days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
     times = ["Morning", "Afternoon", "Evening", "Night"]
@@ -49,12 +49,12 @@ def preprocess_user_input(features_dict):
     for t in times[1:]:
         base_dict[f'Publication_Time_{t}'] = 1 if features_dict['publication_time'] == t else 0
 
-    # 5. Convert to array and return
+    # Convert to array and return
     return np.array([list(base_dict.values())])
 
 
-st.set_page_config(page_title="Podcast Listening Time Predictor", layout="wide")
-st.markdown("# Predict your podcast average streaming time")
+st.set_page_config(page_title="Model Training and Inference", layout="wide")
+st.markdown("# Model Training and Inference")
 
 
 # User Input
@@ -76,6 +76,13 @@ with st.form("podcast_form"):
     submitted = st.form_submit_button("See Result")
 
 if submitted:
+    # Set default values if fields are empty
+    if not episode_name:
+        episode_name = "Unnamed Podcast"
+    
+    if not time_length:
+        time_length = "02:00"
+        
     features = {
         'time_length': time_length,
         'genre': genre,

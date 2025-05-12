@@ -14,5 +14,5 @@ The template does the following:
 
 Run the application:
 ```
-streamlit run final_project.py
+streamlit run main.py
 ```
