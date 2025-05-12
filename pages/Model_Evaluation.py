@@ -89,6 +89,12 @@ try:
     st.markdown("## Report")
     report(y_train, y_train_pred, "TRAIN")
     report(y_eval, y_eval_pred, "TEST")
+
+    st.markdown("### What does this mean?")
+    st.markdown("MSE: Measures the average squared prediction error; lower values indicate better fit but are sensitive to large errors and scale-dependent.")
+    st.markdown("RMSE: Represents the average prediction error in the original unit of measurement; easier to interpret practically, with lower values indicating better performance.")
+    st.markdown("MAE: Reflects the average absolute prediction error; lower values suggest more accurate and robust performance, especially against outliers.")
+    st.markdown("R²: Indicates that the model explains how much of the variance in the target data; higher values (closer to 1) mean better explanatory power.")
     
     # === Plotting ===
     st.markdown("## Plotting")
@@ -114,34 +120,34 @@ try:
     st.pyplot(fig)
     
     # Additional evaluation metrics
-    st.markdown("## Additional Analysis")
+    # st.markdown("## Additional Analysis")
     
     # Feature importance (for linear models)
-    if selected_model in ["Linear Regression", "Ridge Regression"]:
-        st.markdown("### Feature Importance")
-        try:
-            # Get feature names from preprocessing
-            feature_names = X_train.columns if hasattr(X_train, 'columns') else [f"Feature {i}" for i in range(X_train.shape[1])]
+    # if selected_model in ["Linear Regression", "Ridge Regression"]:
+    #     st.markdown("### Feature Importance")
+    #     try:
+    #         # Get feature names from preprocessing
+    #         feature_names = X_train.columns if hasattr(X_train, 'columns') else [f"Feature {i}" for i in range(X_train.shape[1])]
             
-            # Get coefficients
-            coeffs = model.W[1:] if hasattr(model, 'W') else model.coef_
+    #         # Get coefficients
+    #         coeffs = model.W[1:] if hasattr(model, 'W') else model.coef_
             
-            # Create DataFrame for visualization
-            coef_df = pd.DataFrame({
-                'Feature': feature_names,
-                'Coefficient': coeffs.flatten()
-            }).sort_values('Coefficient', ascending=False)
+    #         # Create DataFrame for visualization
+    #         coef_df = pd.DataFrame({
+    #             'Feature': feature_names,
+    #             'Coefficient': coeffs.flatten()
+    #         }).sort_values('Coefficient', ascending=False)
             
-            # Plot feature importance
-            fig, ax = plt.subplots(figsize=(10, 8))
-            coef_df.plot(kind='barh', x='Feature', y='Coefficient', ax=ax)
-            plt.title('Feature Importance')
-            plt.xlabel('Coefficient Value')
-            plt.tight_layout()
-            st.pyplot(fig)
+    #         # Plot feature importance
+    #         fig, ax = plt.subplots(figsize=(10, 8))
+    #         coef_df.plot(kind='barh', x='Feature', y='Coefficient', ax=ax)
+    #         plt.title('Feature Importance')
+    #         plt.xlabel('Coefficient Value')
+    #         plt.tight_layout()
+    #         st.pyplot(fig)
             
-        except Exception as e:
-            st.warning(f"Could not display feature importance: {str(e)}")
+    #     except Exception as e:
+    #         st.warning(f"Could not display feature importance: {str(e)}")
     
     # Residual analysis
     st.markdown("### Residual Analysis")
@@ -155,6 +161,13 @@ try:
     ax.set_title('Residual Plot')
     ax.grid(True)
     st.pyplot(fig)
+
+    st.markdown("### What does this mean?")
+    st.markdown("The left scatter plot compares the actual target values (y-axis) with the model’s predicted values (x-axis) on the test set. The red dashed line represents perfect predictions. Ideally, points should align closely to the red dashed line.")
+    st.markdown("The histogram on the right shows the distribution of residuals (Actual - Predicted) on the test set. Ideally, residuals should be centered around 0 and symmetrically distributed (like a bell curve), indicating unbiased predictions.")
+    st.markdown("Residuals should ideally be normally distributed with a mean of 0. A large standard deviation indicates high variability in prediction errors. The min and max values provide insight into the range of errors.")
+
+    
     
     # Residual statistics
     st.markdown("#### Residual Statistics")
@@ -168,6 +181,7 @@ try:
         ]
     })
     st.dataframe(residual_stats)
+
 
 except Exception as e:
     st.error(f"An error occurred: {str(e)}")
